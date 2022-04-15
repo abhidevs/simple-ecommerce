@@ -6,8 +6,8 @@ const cartItems = document.getElementById("cartitems");
 const cartBtn = document.getElementById("cartBtn");
 const toastContainer = document.getElementById("toast-container");
 
-cartBtn.addEventListener("click", (e) => (cart.style.display = "block"));
-closeCart.addEventListener("click", (e) => (cart.style.display = "none"));
+cartBtn.addEventListener("click", (e) => cart.classList.toggle('opened'));
+closeCart.addEventListener("click", (e) => cart.classList.remove('opened'));
 
 products.addEventListener("click", (e) => {
   console.dir(e.target);
@@ -17,27 +17,41 @@ products.addEventListener("click", (e) => {
     const itemName = product.querySelector(".product-name").innerText;
     const itemPrice = product.querySelector(".product-price").innerText;
 
-    const newItem = document.createElement("div");
-    newItem.className = "cartitem";
+    const itemId = `cartitem-${removeSpaces(itemName)}`;
+    const item = document.getElementById(itemId);
+    console.log(item);
 
-    newItem.innerHTML += `<img src=${itemImg} />`;
-    newItem.innerHTML += `<p class='cartitem-name'>${itemName}</p>`;
-    newItem.innerHTML += `<p class='cartitem-price'>${itemPrice}</p>`;
+    if (item) {
+      const itemQty = item.querySelector(".cartitem-qty");
+      let qty = itemQty.value;
+      itemQty.value = parseInt(qty) + 1;
+      createNotification(`Another ${itemName} added to cart.`);
+    } else {
+      const newItem = document.createElement("div");
+      newItem.className = "cartitem";
+      newItem.id = itemId;
 
-    const removeBtn = document.createElement("button");
-    removeBtn.innerText = "Remove";
-    removeBtn.addEventListener("click", () => {
-      const total = totalPrice.innerText;
-      totalPrice.innerText = parseInt(total) - parseInt(itemPrice.slice(1));
-      newItem.remove();
-    });
-    newItem.appendChild(removeBtn);
+      newItem.innerHTML += `<img src=${itemImg} />`;
+      newItem.innerHTML += `<p class='cartitem-name'>${itemName}</p>`;
+      newItem.innerHTML += `<input class='cartitem-qty' type='number' value='1' />`;
+      newItem.innerHTML += `<p class='cartitem-price'>${itemPrice}</p>`;
 
-    cartItems.appendChild(newItem);
+      const removeBtn = document.createElement("button");
+      removeBtn.innerText = "Remove";
+      removeBtn.addEventListener("click", () => {
+        const total = totalPrice.innerText;
+        let qty = newItem.querySelector(".cartitem-qty").value;
+        totalPrice.innerText = parseInt(total) - parseInt(itemPrice.slice(1)) * parseInt(qty);
+        newItem.remove();
+      });
+
+      newItem.appendChild(removeBtn);
+      cartItems.appendChild(newItem);
+      createNotification(`${itemName} added to your cart.`);
+    }
+
     const total = totalPrice.innerText;
     totalPrice.innerText = parseInt(total) + parseInt(itemPrice.slice(1));
-
-    createNotification(`${itemName} added to cart.`);
   }
 });
 
@@ -50,4 +64,9 @@ function createNotification(text) {
   setTimeout(() => {
     notif.remove();
   }, 3000);
+}
+
+function removeSpaces(text) {
+  let t = text.toLowerCase();
+  return t.split(" ").join("-");
 }
