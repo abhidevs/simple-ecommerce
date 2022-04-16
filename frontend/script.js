@@ -6,6 +6,7 @@ const cartItems = document.getElementById("cartitems");
 const cartBtn = document.getElementById("cartBtn");
 const toastContainer = document.getElementById("toast-container");
 const backendAPI = "http://localhost:3000";
+const pagination = document.getElementById("pagination");
 
 cartBtn.addEventListener("click", (e) => cart.classList.toggle("opened"));
 closeCart.addEventListener("click", (e) => cart.classList.remove("opened"));
@@ -41,9 +42,15 @@ function createNotification(text) {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
+  const objUrlParams = new URLSearchParams(window.location.search);
+  const page = objUrlParams.get("page") || 1;
+
   axios
-    .get(`${backendAPI}/products`)
-    .then((res) => listProducts(res.data.products))
+    .get(`${backendAPI}/products?page=${page}`)
+    .then(({ data: { products, ...pageData } }) => {
+      listProducts(products);
+      showPagination(pageData);
+    })
     .catch((err) => console.log(err));
 
   axios
@@ -117,4 +124,26 @@ function addProductToCart({
 
   const total = totalPrice.innerText;
   totalPrice.innerText = parseInt(total) + parseInt(price);
+}
+
+function showPagination({
+  currentPage,
+  hasNextPage,
+  nextPage,
+  hasPreviousPage,
+  previousPage,
+  lastPage,
+}) {
+  let innerHTML = ``;
+
+  if (currentPage !== 1 && previousPage !== 1)
+    innerHTML += `<a href='?page=1'>1</a>`;
+  if (hasPreviousPage)
+    innerHTML += `<a href='?page=${previousPage}'>${previousPage}</a>`;
+  innerHTML += `<a href='#' class='active'>${currentPage}</a>`;
+  if (hasNextPage) innerHTML += `<a href='?page=${nextPage}'>${nextPage}</a>`;
+  if (lastPage !== currentPage && lastPage !== nextPage)
+    innerHTML += `<a href='?page=${lastPage}'>${lastPage}</a>`;
+
+  pagination.innerHTML = innerHTML;
 }
