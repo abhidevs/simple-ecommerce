@@ -47,11 +47,13 @@ exports.getCart = (req, res, next) => {
       return cart.getProducts();
     })
     .then((products) => {
-      res.render("shop/cart", {
-        path: "/cart",
-        pageTitle: "Your Cart",
-        products: products,
-      });
+      // res.render("shop/cart", {
+      //   path: "/cart",
+      //   pageTitle: "Your Cart",
+      //   products: products,
+      // });
+
+      res.json({ products });
     })
     .catch((err) => console.log(err));
 };
@@ -60,7 +62,6 @@ exports.postCart = (req, res, next) => {
   const prodId = req.body.productId;
   let fetchedCart;
   let newQty = 1;
-  console.log({ prodId });
 
   req.user
     .getCart()
@@ -83,7 +84,8 @@ exports.postCart = (req, res, next) => {
     .then((product) =>
       fetchedCart.addProduct(product, { through: { quantity: newQty } })
     )
-    .then(() => res.redirect("/cart"))
+    .then(() => fetchedCart.getProducts({ where: { id: prodId } }))
+    .then(([product]) => res.json(product))
     .catch((err) => console.log(err));
 };
 

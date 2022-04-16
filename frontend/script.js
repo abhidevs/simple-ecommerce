@@ -11,52 +11,19 @@ cartBtn.addEventListener("click", (e) => cart.classList.toggle("opened"));
 closeCart.addEventListener("click", (e) => cart.classList.remove("opened"));
 
 products.addEventListener("click", (e) => {
-  console.dir(e.target);
   if (e.target.className == "add-to-cart") {
     const product = e.target.parentElement.parentElement.parentElement;
-    const itemImg = product.querySelector(".product-image img").src;
-    const itemName = product.querySelector(".product-name").innerText;
-    const itemPrice = product.querySelector(".product-price").innerText;
-
-    const productId = product.id.slice(7);
-    const itemId = `cartitem-${removeSpaces(itemName)}`;
-    const item = document.getElementById(itemId);
+    const imageUrl = product.querySelector(".product-image img").src;
+    const title = product.querySelector(".product-name").innerText;
+    const price = product.querySelector(".product-price").innerText;
+    const id = product.id;
 
     axios
-      .post(`${backendAPI}/cart`, { productId })
+      .post(`${backendAPI}/cart`, { productId: id.slice(7) })
       .then((res) => {
-        if (item) {
-          const itemQty = item.querySelector(".cartitem-qty");
-          let qty = itemQty.value;
-          itemQty.value = parseInt(qty) + 1;
-          createNotification(`Another ${itemName} added to cart.`);
-        } else {
-          const newItem = document.createElement("div");
-          newItem.className = "cartitem";
-          newItem.id = itemId;
-
-          newItem.innerHTML += `<img src=${itemImg} />`;
-          newItem.innerHTML += `<p class='cartitem-name'>${itemName}</p>`;
-          newItem.innerHTML += `<input class='cartitem-qty' type='number' value='1' />`;
-          newItem.innerHTML += `<p class='cartitem-price'>${itemPrice}</p>`;
-
-          const removeBtn = document.createElement("button");
-          removeBtn.innerText = "Remove";
-          removeBtn.addEventListener("click", () => {
-            const total = totalPrice.innerText;
-            let qty = newItem.querySelector(".cartitem-qty").value;
-            totalPrice.innerText =
-              parseInt(total) - parseInt(itemPrice.slice(1)) * parseInt(qty);
-            newItem.remove();
-          });
-
-          newItem.appendChild(removeBtn);
-          cartItems.appendChild(newItem);
-          createNotification(`${itemName} added to your cart.`);
-        }
-
-        const total = totalPrice.innerText;
-        totalPrice.innerText = parseInt(total) + parseInt(itemPrice.slice(1));
+        const product = res.data;
+        addProductToCart(product);
+        createNotification(`${product.title} added to your cart.`);
       })
       .catch((err) => console.log(err));
   }
@@ -73,15 +40,15 @@ function createNotification(text) {
   }, 3000);
 }
 
-function removeSpaces(text) {
-  let t = text.toLowerCase();
-  return t.split(" ").join("-");
-}
-
 window.addEventListener("DOMContentLoaded", () => {
   axios
     .get(`${backendAPI}/products`)
     .then((res) => listProducts(res.data.products))
+    .catch((err) => console.log(err));
+
+  axios
+    .get(`${backendAPI}/cart`)
+    .then((res) => res.data.products.forEach((p) => addProductToCart(p)))
     .catch((err) => console.log(err));
 });
 
@@ -111,4 +78,43 @@ function listProducts(productsData) {
 
     products.appendChild(prod);
   });
+}
+
+function addProductToCart({
+  id,
+  title,
+  imageUrl,
+  price,
+  cartitem: { quantity },
+}) {
+  const itemId = `cartitem-${id}`;
+  const item = document.getElementById(itemId);
+
+  if (item) {
+    item.querySelector(".cartitem-qty").value = quantity;
+  } else {
+    const newItem = document.createElement("div");
+    newItem.className = "cartitem";
+    newItem.id = itemId;
+
+    newItem.innerHTML += `<img src=${imageUrl} />`;
+    newItem.innerHTML += `<p class='cartitem-name'>${title}</p>`;
+    newItem.innerHTML += `<input class='cartitem-qty' type='number' value=${quantity} />`;
+    newItem.innerHTML += `<p class='cartitem-price'>${price}</p>`;
+
+    const removeBtn = document.createElement("button");
+    removeBtn.innerText = "Remove";
+    removeBtn.addEventListener("click", () => {
+      const total = totalPrice.innerText;
+      let qty = newItem.querySelector(".cartitem-qty").value;
+      totalPrice.innerText = parseInt(total) - parseInt(price) * parseInt(qty);
+      newItem.remove();
+    });
+
+    newItem.appendChild(removeBtn);
+    cartItems.appendChild(newItem);
+  }
+
+  const total = totalPrice.innerText;
+  totalPrice.innerText = parseInt(total) + parseInt(price);
 }
