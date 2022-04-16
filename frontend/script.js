@@ -5,9 +5,10 @@ const totalPrice = document.getElementById("totalPrice");
 const cartItems = document.getElementById("cartitems");
 const cartBtn = document.getElementById("cartBtn");
 const toastContainer = document.getElementById("toast-container");
+const backendAPI = "http://localhost:3000";
 
-cartBtn.addEventListener("click", (e) => cart.classList.toggle('opened'));
-closeCart.addEventListener("click", (e) => cart.classList.remove('opened'));
+cartBtn.addEventListener("click", (e) => cart.classList.toggle("opened"));
+closeCart.addEventListener("click", (e) => cart.classList.remove("opened"));
 
 products.addEventListener("click", (e) => {
   console.dir(e.target);
@@ -41,7 +42,8 @@ products.addEventListener("click", (e) => {
       removeBtn.addEventListener("click", () => {
         const total = totalPrice.innerText;
         let qty = newItem.querySelector(".cartitem-qty").value;
-        totalPrice.innerText = parseInt(total) - parseInt(itemPrice.slice(1)) * parseInt(qty);
+        totalPrice.innerText =
+          parseInt(total) - parseInt(itemPrice.slice(1)) * parseInt(qty);
         newItem.remove();
       });
 
@@ -69,4 +71,39 @@ function createNotification(text) {
 function removeSpaces(text) {
   let t = text.toLowerCase();
   return t.split(" ").join("-");
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  axios
+    .get(`${backendAPI}/products`)
+    .then((res) => listProducts(res.data.products))
+    .catch((err) => console.log(err));
+});
+
+function listProducts(productsData) {
+  console.log(productsData);
+  productsData.forEach((product) => {
+    const prod = document.createElement("div");
+    prod.className = "product";
+    prod.innerHTML = `<div class="product">
+    <div class="product-image">
+      <img
+        src=${product.imageUrl}
+        alt=${product.title}
+      />
+    </div>
+    <div class="product-info">
+      <div class="product-top-row">
+        <h3 class="product-name">${product.title}</h3>
+        <p>&#9733;&#9733;&#9733;&#9733;</p>
+      </div>
+      <div class="product-bottom-row">
+        <p class="product-price">$${product.price}</p>
+        <button class="add-to-cart">Add to Cart</button>
+      </div>
+    </div>
+  </div>`;
+
+    products.appendChild(prod);
+  });
 }
