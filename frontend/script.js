@@ -18,42 +18,47 @@ products.addEventListener("click", (e) => {
     const itemName = product.querySelector(".product-name").innerText;
     const itemPrice = product.querySelector(".product-price").innerText;
 
+    const productId = product.id.slice(7);
     const itemId = `cartitem-${removeSpaces(itemName)}`;
     const item = document.getElementById(itemId);
-    console.log(item);
 
-    if (item) {
-      const itemQty = item.querySelector(".cartitem-qty");
-      let qty = itemQty.value;
-      itemQty.value = parseInt(qty) + 1;
-      createNotification(`Another ${itemName} added to cart.`);
-    } else {
-      const newItem = document.createElement("div");
-      newItem.className = "cartitem";
-      newItem.id = itemId;
+    axios
+      .post(`${backendAPI}/cart`, { productId })
+      .then((res) => {
+        if (item) {
+          const itemQty = item.querySelector(".cartitem-qty");
+          let qty = itemQty.value;
+          itemQty.value = parseInt(qty) + 1;
+          createNotification(`Another ${itemName} added to cart.`);
+        } else {
+          const newItem = document.createElement("div");
+          newItem.className = "cartitem";
+          newItem.id = itemId;
 
-      newItem.innerHTML += `<img src=${itemImg} />`;
-      newItem.innerHTML += `<p class='cartitem-name'>${itemName}</p>`;
-      newItem.innerHTML += `<input class='cartitem-qty' type='number' value='1' />`;
-      newItem.innerHTML += `<p class='cartitem-price'>${itemPrice}</p>`;
+          newItem.innerHTML += `<img src=${itemImg} />`;
+          newItem.innerHTML += `<p class='cartitem-name'>${itemName}</p>`;
+          newItem.innerHTML += `<input class='cartitem-qty' type='number' value='1' />`;
+          newItem.innerHTML += `<p class='cartitem-price'>${itemPrice}</p>`;
 
-      const removeBtn = document.createElement("button");
-      removeBtn.innerText = "Remove";
-      removeBtn.addEventListener("click", () => {
+          const removeBtn = document.createElement("button");
+          removeBtn.innerText = "Remove";
+          removeBtn.addEventListener("click", () => {
+            const total = totalPrice.innerText;
+            let qty = newItem.querySelector(".cartitem-qty").value;
+            totalPrice.innerText =
+              parseInt(total) - parseInt(itemPrice.slice(1)) * parseInt(qty);
+            newItem.remove();
+          });
+
+          newItem.appendChild(removeBtn);
+          cartItems.appendChild(newItem);
+          createNotification(`${itemName} added to your cart.`);
+        }
+
         const total = totalPrice.innerText;
-        let qty = newItem.querySelector(".cartitem-qty").value;
-        totalPrice.innerText =
-          parseInt(total) - parseInt(itemPrice.slice(1)) * parseInt(qty);
-        newItem.remove();
-      });
-
-      newItem.appendChild(removeBtn);
-      cartItems.appendChild(newItem);
-      createNotification(`${itemName} added to your cart.`);
-    }
-
-    const total = totalPrice.innerText;
-    totalPrice.innerText = parseInt(total) + parseInt(itemPrice.slice(1));
+        totalPrice.innerText = parseInt(total) + parseInt(itemPrice.slice(1));
+      })
+      .catch((err) => console.log(err));
   }
 });
 
@@ -85,7 +90,7 @@ function listProducts(productsData) {
   productsData.forEach((product) => {
     const prod = document.createElement("div");
     prod.className = "product";
-    prod.innerHTML = `<div class="product">
+    prod.innerHTML = `<div class="product" id="product${product.id}">
     <div class="product-image">
       <img
         src=${product.imageUrl}
