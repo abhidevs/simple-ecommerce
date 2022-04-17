@@ -82,8 +82,8 @@ function listProducts(productsData) {
   productsData.forEach((product) => {
     const prod = document.createElement("div");
     prod.className = "product";
-    prod.innerHTML = `<div class="product" id="product${product.id}">
-    <div class="product-image">
+    prod.id = `product${product.id}`;
+    prod.innerHTML = `<div class="product-image">
       <img
         src=${product.imageUrl}
         alt=${product.title}
@@ -98,8 +98,7 @@ function listProducts(productsData) {
         <p class="product-price">$${product.price}</p>
         <button class="add-to-cart">Add to Cart</button>
       </div>
-    </div>
-  </div>`;
+    </div>`;
 
     products.appendChild(prod);
   });
