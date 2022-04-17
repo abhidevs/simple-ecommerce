@@ -175,6 +175,35 @@ main > h1 {
   cursor: pointer;
 }
 
+.orders-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.order {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  height: 250px;
+  background-color: white;
+  padding: 1rem;
+  padding-right: 2rem;
+  border-radius: 10px;
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15);
+}
+
+.order img {
+  width: 220px;
+  height: 100%;
+  object-fit: cover;
+}
+
+.order p {
+  font-size: 1.3rem;
+}
+
 .concert-container {
   width: 100%;
   padding: 2rem 8rem;
@@ -325,7 +354,8 @@ main > h1 {
   font-weight: 600;
 }
 
-.cartitem-qty {
+.cartitem-qty,
+.orderitem-qty {
   width: 40px;
   height: 40px;
   font-size: 1rem;

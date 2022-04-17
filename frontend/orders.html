@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Store | The Euphony</title>
+    <title>Orders | The Euphony</title>
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -12,8 +12,8 @@
       <nav>
         <ul>
           <li><a href="./">Home</a></li>
-          <li><a href="#">Store</a></li>
-          <li><a href="./orders.html">Orders</a></li>
+          <li><a href="./store.html">Store</a></li>
+          <li><a href="#">Orders</a></li>
           <li><a href="./about.html">About</a></li>
         </ul>
         <button id="cartBtn">Cart</button>
@@ -25,27 +25,9 @@
     </header>
 
     <main>
-      <h1>Most Selling</h1>
+      <h1>Your Orders</h1>
 
-      <div class="product-container" id="products">
-      </div>
-
-      <div class="cart" id="cart">
-        <div class="cart-top-row">
-          <h2>Added Items</h2>
-          <button id="close-cart">&times;</button>
-        </div>
-        <div class="cartitem-container" id="cartitems">
-        </div>
-
-        <div class="cart-bottom-row">
-          <div class="total">
-            <h3>Total Price: $</h3>
-            <h3 id="totalPrice">0</h3>
-          </div>
-          <button class="checkout" id="checkout">Order Now</button>
-        </div>
-      </div>
+      <div class="orders-container" id="orders"></div>
 
       <div id="toast-container"></div>
 
@@ -67,6 +49,6 @@
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"></script>
-    <script src="script.js"></script>
+    <script src="orderscript.js"></script>
   </body>
 </html>

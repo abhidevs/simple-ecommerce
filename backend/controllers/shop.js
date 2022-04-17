@@ -125,10 +125,18 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-  res.render("shop/orders", {
-    path: "/orders",
-    pageTitle: "Your Orders",
-  });
+  // res.render("shop/orders", {
+  //   path: "/orders",
+  //   pageTitle: "Your Orders",
+  // });
+
+  let allItems = [];
+
+  req.user
+    .getOrders()
+    .then((orders) => orders[orders.length - 1].getProducts())
+    .then((products) => res.json(products))
+    .catch((err) => console.log(err));
 };
 
 exports.postOrders = (req, res, next) => {
