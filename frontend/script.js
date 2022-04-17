@@ -5,8 +5,9 @@ const totalPrice = document.getElementById("totalPrice");
 const cartItems = document.getElementById("cartitems");
 const cartBtn = document.getElementById("cartBtn");
 const toastContainer = document.getElementById("toast-container");
-const backendAPI = "http://localhost:3000";
 const pagination = document.getElementById("pagination");
+const checkoutBtn = document.getElementById("checkout");
+const backendAPI = "http://localhost:3000";
 
 cartBtn.addEventListener("click", (e) => cart.classList.toggle("opened"));
 closeCart.addEventListener("click", (e) => cart.classList.remove("opened"));
@@ -28,6 +29,23 @@ products.addEventListener("click", (e) => {
       })
       .catch((err) => console.log(err));
   }
+});
+
+checkoutBtn.addEventListener("click", () => {
+  axios
+    .post(`${backendAPI}/orders`)
+    .then(({ data: { orderId, success } }) => {
+      if (success) {
+        createNotification(
+          `Order sucessfully placed with order id = ${orderId}`
+        );
+        emptyCart();
+      }
+    })
+    .catch((err) => {
+      createNotification(err.message);
+      console.log(err);
+    });
 });
 
 function createNotification(text) {
@@ -146,4 +164,8 @@ function showPagination({
     innerHTML += `<a href='?page=${lastPage}'>${lastPage}</a>`;
 
   pagination.innerHTML = innerHTML;
+}
+
+function emptyCart() {
+  cartItems.innerHTML = "";
 }

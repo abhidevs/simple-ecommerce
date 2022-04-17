@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const Cart = require("../models/cart");
+const Cartitem = require("../models/cartitem");
 
 const ITEMS_PER_PAGE = 2;
 
@@ -128,6 +129,42 @@ exports.getOrders = (req, res, next) => {
     path: "/orders",
     pageTitle: "Your Orders",
   });
+};
+
+exports.postOrders = (req, res, next) => {
+  let fetchedCart;
+  let items;
+  let currOrder;
+  const user = req.user;
+
+  user
+    .getCart()
+    .then((cart) => {
+      fetchedCart = cart;
+      return cart.getProducts();
+    })
+    .then((products) => {
+      if (products.length === 0) throw Error("Cart is empty!");
+      items = products;
+      return user.createOrder();
+    })
+    .then((order) => {
+      items.forEach((item) => {
+        order.addProduct(item, {
+          through: { quantity: item.cartitem.quantity },
+        });
+      });
+      return order;
+    })
+    .then((order) => {
+      currOrder = order;
+      return Cartitem.destroy({ where: { cartId: fetchedCart.id } });
+    })
+    .then(() => res.json({ orderId: currOrder.id, success: true }))
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: err.message, success: false });
+    });
 };
 
 exports.getCheckout = (req, res, next) => {

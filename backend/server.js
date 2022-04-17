@@ -10,6 +10,7 @@ const Product = require("./models/product");
 const User = require("./models/user");
 const Cart = require("./models/cart");
 const Cartitem = require("./models/cartitem");
+const Order = require("./models/order");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const Orderitem = require("./models/orderitem");
 
 app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -44,19 +46,12 @@ User.hasOne(Cart);
 Cart.belongsTo(User);
 Cart.belongsToMany(Product, { through: Cartitem });
 Product.belongsToMany(Cart, { through: Cartitem });
+User.hasMany(Order);
+Order.belongsTo(User);
+Order.belongsToMany(Product, { through: Orderitem });
+Product.belongsToMany(Order, { through: Orderitem });
 
 sequelize
   .sync()
-  .then(() => User.findByPk(1))
-  .then((user) => {
-    if (!user) {
-      return User.create({ name: "Abhik", email: "abhik@gmail.com" });
-    }
-    return user;
-  })
-  .then((user) => {
-    // console.log(user);
-    return user.createCart();
-  })
-  .then((cart) => app.listen(3000))
+  .then(() => app.listen(3000))
   .catch((err) => console.log(err));
