@@ -130,12 +130,13 @@ exports.getOrders = (req, res, next) => {
   //   pageTitle: "Your Orders",
   // });
 
-  let allItems = [];
-
   req.user
-    .getOrders()
-    .then((orders) => orders[orders.length - 1].getProducts())
-    .then((products) => res.json(products))
+    .getOrders({ order: [["createdAt", "DESC"]] })
+    .then((orders) => Promise.all(orders.map((o) => o.getProducts())))
+    .then(([...items]) => {
+      let allItems = items.reduce((all, curr) => (all = [...all, ...curr]));
+      res.json(allItems);
+    })
     .catch((err) => console.log(err));
 };
 

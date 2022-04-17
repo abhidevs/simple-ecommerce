@@ -12,13 +12,13 @@ function listOrders(ordersData) {
   console.log(ordersData);
 
   ordersData.forEach(
-    ({ id, title, imageUrl, price, orderitem: { quantity } }) => {
+    ({ title, imageUrl, price, orderitem: { quantity, orderId } }) => {
       const item = document.createElement("div");
       item.className = "order";
 
       item.innerHTML = `<img src=${imageUrl} />
       <p class='orderitem-name'>${title}</p>
-      <p class='orderitem-id'>ID: ${id}</p>
+      <p class='orderitem-id'>ID: ${orderId}</p>
       <input class='orderitem-qty' type='number' value=${quantity} />
       <p class='orderitem-price'>$${price}</p>`;
 
